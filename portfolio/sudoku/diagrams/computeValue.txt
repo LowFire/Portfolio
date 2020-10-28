@@ -1,0 +1,28 @@
+FUNCTION computeValue(board, coordinates)
+    INITIALIZE arrayBools
+
+    Compare the array of bools to the numbers in the row, column, and square in the coordinates, using the number as the index minus 1.
+    FOR i = 0, i < 9, i++
+        IF board at (coordinateRow, i) > 0
+            SET arrayBools at value stored at that place - 1 to false
+        END
+    END
+
+    FOR i = 0, i < 9, i++
+        IF board at (i, coordinateCol) > 0
+            SET arrayBools at value stored at that place - 1 to false
+        END
+    END
+
+    FOR row = rowRangeStart, row < rowRangeEnd, INCREMENT row
+        FOR col = colRangeStart, col < colRangeEnd, INCREMENT col
+            IF board at row and col > 0
+                SET arrayBools at value stored at that place to false
+        END
+    END
+    loop through the array of bools.
+    RETURN an array of possible numbers
+END
+
+RangeStart = (Coord / 3) * 3
+RangeEnd = RangeStart + 3

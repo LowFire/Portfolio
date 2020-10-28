@@ -1,0 +1,92 @@
+OBJ_SHIP
+
+Events:
+
+create
+step
+keyboard down W
+keyboard down A
+keyboard down D
+keyboard press space
+draw
+alarm 0
+
+create
+//set timing for invincibility
+alarm_set(0, 2 * room_speed)
+image_speed = 6
+ENDEVENT
+
+step
+//check if ship is crashed. If so, check if image_index has
+//reached the end. Destroy the instance once it has.
+//Flicker sprite if invincible
+
+IF (isCrashed = true)
+	IF (image_index = image_number - 1)
+		destroy_instance();
+		with (obj_controller)
+			ship_destroyed = true
+	ENDIF
+ENDIF
+ENDEVENT
+
+keyboard down W
+//Accelerate all surronding asteroids using the asteroid's alt_speed.
+//Gradually increase alt_speed as W is pressed every game step.
+
+with (obj_asteroid)
+	alt_speed += 2;
+ENDEVENT
+
+keyboard down A
+//rotate the ship to the left. Change flame_pos_x and
+//flame_pos_y to make sure flame sprite is always at the
+//back end of the ship when being drawn. Also update
+//flame_direction so it is the same direction as the ship.
+
+direction += 2
+image_angle = direction
+flame_direction = direction
+direction_rads = degtorad(direction)
+flame_pos_x = x + (16 * sin(direction_rads))
+flame_pos_y = y + (16 * cos(direction_rads))
+ENDEVENT
+
+keyboard down D
+//Rotate the ship to the right. Do the same thing
+//with the flames except rotate the oposite direction.
+
+direction -= 2
+image_angle = direction
+flame_direction = direction
+direction_rads = degtorad(direction)
+flame_pos_x = x + (16 * cos(direction_rads))
+flame_pos_y = y + (16 * sin(direction_rads))
+ENDEVENT
+
+keyboard press space
+//Shoot a bullet from the front of the ship and set direction of bullet to the same as the ship's direction.
+//Take in accound the rotation of the ship.
+
+direction_rads = degtorad(direction)
+bullet_pos_x = x + (16 * cos(direction_rads))
+bullet_pos_y = y + (16 * sin(direction_rads))
+new_bullet = instance_create_layer(bullet_pos_x, bullet_pos_y, "instances", obj_bullet);
+with (new_bullet)
+	direction = other.direction
+ENDEVENT
+
+draw
+//draw the flame while the W key is pressed.
+
+IF (keyboard_check(ord("W"))
+	draw flames
+ENDEVENT
+
+alarm 0
+//Turn off invincibility when alarm runs out
+invincible = false
+image_speed = 0
+image_index = 1
+ENDEVENT

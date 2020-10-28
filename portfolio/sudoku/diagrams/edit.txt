@@ -1,0 +1,9 @@
+FUNCTION edit(board)
+    FUNCTION promptCoordinates
+    FUNCTION promptValue
+    FUNCTION isValid(value, coordinates, board)
+    IF value is valid
+        SET board at coordinates to values
+    ELSE
+        PUT "That value is not valid"
+END

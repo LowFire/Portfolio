@@ -1,0 +1,97 @@
+OBJ_CONTROLLER
+
+Events:
+
+Create
+Step
+Alarm 0
+Alarm 1
+Alarm 2
+
+Create
+//Signal to obj_drawGUI to draw level header and set alarm 0.
+//Initialize global variables
+with (obj_drawGUI)
+	draw_menu = false
+	draw_level = true
+alarm_set(0, 2 * room_speed)
+global.g_lives = 3
+global.g_level = 1
+global.num_sml_asteroids = 2
+global.num_med_asteroids = 0
+global.num_lrg_asteroids = 0
+ENDEVENT
+
+Step
+//Check for the state of the game every step.
+IF (ship_crashed = true AND asteroids_destroyed = false)
+	IF (g_lives > 0 )
+		alarm_set(1, 1 * room_speed)
+	ELSE
+		with (obj_drawGUI)
+			draw_game_over = true
+	ENDIF
+ENDIF
+
+IF (asteroids_destroyed = true)
+	with (obj_drawGUI)
+		draw_mission_complete = true
+		alarm_set(0, 2 * room_speed)
+ENDIF
+
+IF (restart = ture)
+	g_level = 1
+	g_lives = 3
+	instance_destroy(obj_ship)
+	for (i = 0; i < instance_count(obj_asteroid); i++)
+		destroy = instance_find(obj_asteroid, i)
+		instance_destroy(destroy)
+	with (obj_drawGUI)
+		draw_start = true
+	alarm_set(0, 2 * room_speed)
+ENDEVENT
+
+Alarm 0
+//Signal to obj_drawGUI to stop drawing the level start header.
+//Spawn objects.
+with (obj_drawGUI)
+	draw_start = false
+instance_create_layer(512, 512, "instances", obj_ship) //spawn in the center of the screen
+
+IF (g_level % 9 = 0)
+	global.num_lrg_asteroids++
+ELSE IF (global.g_level % 3 = 0)
+	global.num_med_asteroids++
+ELSE
+	global.num_sml_asteroids++
+
+repeat(num_lrg_asteroids)
+	rand_pos_x = irandom_range(0, 1024)
+	rand_pos_y = irandom_range(0, 1024)
+	instance_create_layer(rand_pos_x, rand_pos_y, "instances", obj_lrgAsteroid)
+
+repeat(num_med_asteroids)
+	rand_pos_x = irandom_range(0, 1024)
+	rand_pos_y = irandom_range(0, 1024)
+	instance_create_layer(rand_pos_x, rand_pos_y, "instances", obj_medAsteroid)
+	
+repeat(num_sml_asteroids)
+	rand_pos_x = irandom_range(0, 1024)
+	rand_pos_y = irandom_range(0, 1024)
+	instance_create_layer(rand_pos_x, rand_pos_y, "instances", obj_smlAsteroid)
+ENDEVENT
+
+Alarm 1
+//Spawn new ship if last one was destroyed
+instance_create_layer(512, 512, "instances", obj_ship)
+ENDEVENT
+
+Alarm 2
+//Move onto the next level. Signal to obj_drawGUI to draw
+//level start header. Remove instances from current level.
+with (obj_drawGUI)
+	draw_mission_complete = false
+	draw_start = true
+instance_destroy(obj_ship)
+alarm_set(0, 2 * room_speed)
+ENDEVENT

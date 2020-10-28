@@ -1,0 +1,107 @@
+OBJ_ASTEROID
+
+Events:
+
+Create
+Step
+Collision w/ obj_ship
+Outside Room
+Destroy
+
+Create
+//Do nothing as default. Each size of asteroid will overload this event.
+ENDEVENT
+
+step
+//Check the hp value of the asteroid every step. Destroy it if hp is <= 0
+//Rotate asteroid every step.
+//Move asteroid in alt_direction at alt_speed
+IF (hp <= 0)
+	instance_destroy()
+
+alt_direction_rads = degtorad(alt_direction)
+x += cos(alt_direction_rads) * alt_speed
+y += cos(alt_direction_rads) * alt_speed
+ENDEVENT
+
+Collision w/ obj_ship
+//Set obj_ship's flags to indicate it has crashed and change it's sprite_index
+//to spr_explosion
+if (other.invincible != true)
+	other.isCrashed = true
+	other.canThrust = false
+	other.canShoot = false
+	other.sprite_index = spr_explosion
+ENDEVENT
+
+Destroy
+//Do nothing. This will be the default for obj_smlAsteroid. obj_medAsteroid and obj_lrgAsteroid will
+//overload this event.
+
+ENDEVENT
+
+
+OBJ_SMLASTEROID child of OBJ_ASTEROID
+
+Events:
+
+Create
+
+Create
+//Set random direction and speed. Speed will be higher than the larger asteroids.
+direction = floor(random(0, 359))
+speed = floor(random(3, 8))
+ENDEVENT
+
+
+OBJ_MEDASTEROID child of OBJ_ASTEROID
+
+Events:
+
+Create
+Destroy
+
+Create
+//Set random direction and speed. medAsteroid has moderate speed.
+direction = floor(random(0, 359))
+speed = floor(random(2, 6))
+ENDEVENT
+
+Destroy
+//Break the asteroid into smaller asteroids
+repeat(2)
+	new_asteroid = instance_create(x, y, "instances", obj_smlAsteroid)
+ENDEVENT
+
+
+OBJ_LRGASTEROID child of OBJ_ASTEROID
+
+Events:
+
+Create
+Destroy
+
+Create
+//Set random speed and direction. Large asteroids are the slowest
+direction = floor(random(0, 359))
+speed = floor(random(1, 4))
+ENDEVENT
+
+Outside Room
+//Wrap to opposite side of room
+IF (x > room_width)
+	x = 0
+ELSE
+	x = room_width
+ENDIF
+
+IF (y > room_height)
+	y = 0
+ELSE
+	y = room_height
+
+Destroy
+//Break asteroid apart.
+instance_create(x, y, "instance", obj_medAsteroid)
+repeat(2)
+	new_asteroid = instance_create(x, y, "instances", obj_smlAsteroid)
